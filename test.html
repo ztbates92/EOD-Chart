@@ -1,0 +1,100 @@
+<head> <meta charset="utf-8">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular-route.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.3/jquery.csv.min.js"></script>
+  <title>Home</title>
+</head>
+
+<body id="body" ng-app="myApp" ng-controller="mainController">
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand">Our Website</a>
+      </div>
+      <div>
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#home">Home</a></li>
+          <li><a href="#advisees">Advisees</a></li>
+          <li><a href="#gpa">GPA</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="container-fluid">
+     <p>
+      Upload Files<input type="file" id="fileInput"><br>
+      <button name="btn1" onclick="storeData()">Submit</button>
+     </p>
+  </div>
+<div class="container">
+  <h1>GPA</h1>
+  <table class="table table-dark">
+    <thead>
+      <tr>
+        <td>Student ID</td>
+        <td>Last Name</td>
+        <td>First Name</td>
+        <td>GPA</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="entry in tableData">
+        <td ng-bind="entry['PID']"></td>
+        <td ng-bind="entry['AREA/INSTANCE']"></td>
+        <td ng-bind="entry['FOOTAGE']"></td>
+        <td ng-bind="entry['TOTAL POINTS']"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+
+
+
+<script type="text/javascript">
+  var inputData;
+  var tableData = [];
+  const reader = new FileReader()
+  var app = angular.module("myApp", ['ngRoute']);
+
+
+
+  $(document).ready(function() {
+    $(".nav a").on("click", function () {
+      $(".nav").find(".active").removeClass("active");
+      $(this).parent().addClass("active");
+    });
+  });
+
+
+
+  storeData = function() {
+    inputData = $('#fileInput').prop('files');
+    reader.readAsText(inputData[0]);
+  }
+
+
+
+  reader.onload = function() {
+    var tempArray = $.csv.toObjects(reader.result);
+    for (var i = 0; i < tempArray.length; i++) {
+      if (tempArray[i].PID) {
+        tableData.push(tempArray[i]);
+      }
+    }
+  }
+
+
+
+  app.config(function () {
+
+  });
+
+  app.controller('mainController', function($scope) {
+
+  });
+
+</script>
