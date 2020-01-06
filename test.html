@@ -26,22 +26,22 @@
   <div class="container-fluid">
      <p>
       Upload Files<input type="file" id="fileInput"><br>
-      <button name="btn1">Submit</button>
+      <button name="btn1" ng-click="update()">Submit</button>
      </p>
   </div>
 <div class="container">
-  <h1>GPA</h1>
-  <table class="table table-dark">
+  <h1>EOD REPORT</h1>
+  <table class="table">
     <thead>
       <tr>
-        <td>Student ID</td>
-        <td>Last Name</td>
-        <td>First Name</td>
-        <td>GPA</td>
+        <td>PID</td>
+        <td>Area/Instance</td>
+        <td>Footage</td>
+        <td>Points</td>
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="entry in tableData">
+      <tr ng-repeat="entry in tableD">
         <td ng-bind="entry['PID']"></td>
         <td ng-bind="entry['AREA/INSTANCE']"></td>
         <td ng-bind="entry['FOOTAGE']"></td>
@@ -86,7 +86,11 @@
   });
 
   app.controller('mainController', function($scope) {
-
+    $scope.tableD = [];
+    $scope.update = function() {
+      $scope.tableD = angular.copy(tableData);
+      $scope.$apply();
+    }
   });
 
 </script>
