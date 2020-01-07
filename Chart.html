@@ -1,0 +1,116 @@
+<head> <meta charset="utf-8">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular-route.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.3/jquery.csv.min.js"></script>
+  <title>Home</title>
+</head>
+
+<body id="body" ng-app="myApp" ng-controller="mainController">
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand">EOD Report</a>
+      </div>
+      <div>
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#home">Home</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-2">
+        <p>
+         Upload Files<input type="file" id="fileInput"><br>
+         <button name="btn1" ng-click="update()">Submit</button><br><br>
+         Filter:<br>
+         <input type="text" ng-model="filterText"></input>
+        </p>
+      </div>
+<div class="col-md-8">
+  <h1 align="center">EOD REPORT</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <td>PID</td>
+        <td>Area/Instance</td>
+        <td>Footage</td>
+        <td>Points</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="entry in tableD | filter:filterText">
+        <td ng-bind="entry['PID']"></td>
+        <td ng-bind="entry['AREA/INSTANCE']"></td>
+        <td ng-bind="entry['FOOTAGE']"></td>
+        <td ng-bind="entry['TOTAL POINTS']"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div class="col-md-2">
+  <table class="table table-striped">
+    <tr>
+      <th>TOTAL</th><td ng-bind="pointTotal"></td>
+    </tr>
+    <tr>
+      <th>AVERAGE</th><td ng-bind="pointAverage"></td>
+    </tr>
+  </table>
+</div>
+</div>
+</div>
+</body>
+
+
+
+<script type="text/javascript">
+  var inputData;
+  var tableData = [];
+  const reader = new FileReader()
+  var app = angular.module("myApp", ['ngRoute']);
+
+  $(document).ready(function() {
+    $(".nav a").on("click", function () {
+      $(".nav").find(".active").removeClass("active");
+      $(this).parent().addClass("active");
+    });
+    $("#fileInput").on("change",function() {
+      inputData = $('#fileInput').prop('files');
+      reader.readAsText(inputData[0]);
+    })
+  });
+
+  reader.onload = function() {
+    var tempArray = $.csv.toObjects(reader.result);
+    for (var i = 0; i < tempArray.length; i++) {
+      if (tempArray[i].PID) {
+        tableData.push(tempArray[i]);
+      }
+    }
+  }
+
+  app.config(function () {
+
+  });
+
+  app.controller('mainController', function($scope) {
+    $scope.tableD = [];
+    $scope.pointTotal = 0;
+    $scope.pointAverage = 0;
+    $scope.update = function() {
+      $scope.tableD = angular.copy(tableData);
+      for (var i = 0; i < $scope.tableD.length; i++) {
+        $scope.pointTotal += parseFloat($scope.tableD[i]['TOTAL POINTS']);
+      }
+      $scope.pointTotal = $scope.pointTotal.toFixed(2);
+      $scope.pointAverage = $scope.pointTotal / $scope.tableD.length;
+      $scope.pointAverage = $scope.pointAverage.toFixed(2);
+    }
+  });
+
+</script>
