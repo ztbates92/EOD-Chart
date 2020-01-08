@@ -12,26 +12,28 @@
   <nav class="navbar navbar-inverse">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand">Our Website</a>
+        <a class="navbar-brand">EOD Report</a>
       </div>
       <div>
         <ul class="nav navbar-nav">
           <li class="active"><a href="#home">Home</a></li>
-          <li><a href="#advisees">Advisees</a></li>
-          <li><a href="#gpa">GPA</a></li>
         </ul>
       </div>
     </div>
   </nav>
   <div class="container-fluid">
-     <p>
-      Upload Files<input type="file" id="fileInput"><br>
-      <button name="btn1" ng-click="update()">Submit</button>
-     </p>
-  </div>
-<div class="container">
-  <h1>EOD REPORT</h1>
-  <table class="table">
+    <div class="row">
+      <div class="col-md-2">
+        <p>
+         Upload Files<input type="file" id="fileInput" multiple><br>
+         <button name="btn1" ng-click="update()">Submit</button><br><br>
+         Filter:<br>
+         <input type="text" ng-model="filterText"></input>
+        </p>
+      </div>
+<div class="col-md-8">
+  <h1 align="center">EOD REPORT</h1>
+  <table class="table table-striped">
     <thead>
       <tr>
         <td>PID</td>
@@ -41,7 +43,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="entry in tableD">
+      <tr ng-repeat="entry in tableD | filter:filterText">
         <td ng-bind="entry['PID']"></td>
         <td ng-bind="entry['AREA/INSTANCE']"></td>
         <td ng-bind="entry['FOOTAGE']"></td>
@@ -50,6 +52,21 @@
     </tbody>
   </table>
 </div>
+<div class="col-md-2">
+  <table class="table table-striped">
+    <tr>
+      <th>TOTAL</th><td ng-bind="pointTotal"></td>
+    </tr>
+    <tr>
+      <th>AVERAGE</th><td ng-bind="pointAverage"></td>
+    </tr>
+    <tr>
+      <th>ENTRIES</th><td ng-bind="count"></td>
+    </tr>
+  </table>
+</div>
+</div>
+</div>
 </body>
 
 
@@ -57,9 +74,7 @@
 <script type="text/javascript">
   var inputData;
   var tableData = [];
-  const reader = new FileReader()
   var app = angular.module("myApp", ['ngRoute']);
-
 
   $(document).ready(function() {
     $(".nav a").on("click", function () {
@@ -68,18 +83,20 @@
     });
     $("#fileInput").on("change",function() {
       inputData = $('#fileInput').prop('files');
-      reader.readAsText(inputData[0]);
-    })
-  });
-
-  reader.onload = function() {
-    var tempArray = $.csv.toObjects(reader.result);
+      for (var i = 0; i < inputData.length; i++) {
+        var reader = new FileReader();
+        reader.onload = function() {
+    var tempArray = $.csv.toObjects(this.result);
     for (var i = 0; i < tempArray.length; i++) {
       if (tempArray[i].PID) {
         tableData.push(tempArray[i]);
       }
     }
-  }
+  };
+        reader.readAsText(inputData[i]);
+      }
+    })
+  });
 
   app.config(function () {
 
@@ -87,9 +104,19 @@
 
   app.controller('mainController', function($scope) {
     $scope.tableD = [];
+    $scope.pointTotal = 0;
+    $scope.pointAverage = 0;
+    $scope.count = 0;
     $scope.update = function() {
       $scope.tableD = angular.copy(tableData);
-      $scope.$apply();
+      $scope.pointTotal = 0;
+      for (var i = 0; i < $scope.tableD.length; i++) {
+        $scope.pointTotal += parseFloat($scope.tableD[i]['TOTAL POINTS']);
+      }
+      $scope.pointTotal = $scope.pointTotal.toFixed(2);
+      $scope.pointAverage = $scope.pointTotal / $scope.tableD.length;
+      $scope.pointAverage = $scope.pointAverage.toFixed(2);
+      $scope.count = $scope.tableD.length;
     }
   });
 
